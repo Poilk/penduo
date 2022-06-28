@@ -1,4 +1,3 @@
-set(Boost_DIR /opt/homebrew/Cellar/boost/1.76.0)
 find_package(Boost REQUIRED)
 
 add_library(penduo STATIC
