@@ -6,9 +6,15 @@
 #define PENDUO_SRC_KERNEL_EVENTLOOP_H_
 
 #include <thread>
+#include <vector>
+#include <atomic>
+
 #include "base/noncopyable.h"
 
 namespace penduo{
+
+class Channel;
+class Poller;
 
 class EventLoop : noncopyable {
  public:
@@ -18,6 +24,9 @@ class EventLoop : noncopyable {
   void loop();
 
   static EventLoop *get_event_loop_of_current_thread();
+
+  void update_channel(Channel *channel);
+  void remove_channel(Channel *Channel);
 
   void assert_in_loop_thread(){
     if (!is_in_loop_thread()){
@@ -29,11 +38,18 @@ class EventLoop : noncopyable {
     return thread_id_ == std::this_thread::get_id();
   }
 
+  void quit();
+
  private:
   void abort_not_in_loop_thread();
 
-  bool looping_;
+  typedef std::vector<Channel*> ChannelList;
+
+  std::unique_ptr<Poller> poller_;
+  std::atomic<bool> looping_;
+  std::atomic<bool> quit_;
   const std::thread::id thread_id_;
+  ChannelList  active_channels_;
 };
 
 } //namespace penduo

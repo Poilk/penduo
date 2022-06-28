@@ -2,20 +2,29 @@
 // Created by poilk on 2022/6/27.
 //
 
-#include "EventLoop.h"
+#include <cassert>
 #include <thread>
 #include <sys/poll.h>
+
+#include "net/EventLoop.h"
+#include "net/Channel.h"
+#include "net/Poller.h"
 #include "base/logging/Logger.h"
-#include <cassert>
 
-namespace penduo{
+namespace penduo {
 
-thread_local EventLoop * t_loop_in_this_thread = nullptr;
+const int K_POLLTIME_MS = 10000;
 
-EventLoop::EventLoop() : looping_(false), thread_id_(std::this_thread::get_id()){
-  if(t_loop_in_this_thread){
+thread_local EventLoop *t_loop_in_this_thread = nullptr;
+
+EventLoop::EventLoop() :
+    looping_(false),
+    quit_(false),
+    thread_id_(std::this_thread::get_id()),
+    poller_(new Poller(this)) {
+  if (t_loop_in_this_thread) {
     LOG_FATAL << "Another EventLoop " << t_loop_in_this_thread << " exists in this thread " << thread_id_;
-  } else{
+  } else {
     t_loop_in_this_thread = this;
   }
 };
@@ -38,11 +47,36 @@ void EventLoop::loop() {
   assert(!looping_);
   assert_in_loop_thread();
   looping_ = true;
+  quit_ = false;
 
-  LOG_INFO << "poll in EventLoop::loop of thread_id " << thread_id_;
-  ::poll(nullptr, 0, 5 * 1000);
+  while (!quit_) {
+    active_channels_.clear();
+    poller_->poll(K_POLLTIME_MS, active_channels_);
+    for (auto channel : active_channels_) {
+      channel->handle_event();
+    }
+  }
+  LOG_TRACE << "EventLoop " << this << " tid " << thread_id_ << " stop looping";
 
   looping_ = false;
+}
+
+void EventLoop::quit() {
+  quit_ = true;
+
+  if (!is_in_loop_thread()) {
+    //todo wakeup from another thread
+  }
+}
+
+void EventLoop::update_channel(Channel *channel) {
+  assert(channel->owner_loop() == this);
+  assert_in_loop_thread();
+  poller_->update_channel(channel);
+}
+
+void EventLoop::remove_channel(Channel *Channel) {
+  //todo impl
 }
 
 } //namespace penduo
