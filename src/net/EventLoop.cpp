@@ -18,10 +18,10 @@ const int K_POLLTIME_MS = 10000;
 thread_local EventLoop *t_loop_in_this_thread = nullptr;
 
 EventLoop::EventLoop() :
+    poller_(new Poller(this)),
     looping_(false),
     quit_(false),
-    thread_id_(std::this_thread::get_id()),
-    poller_(new Poller(this)) {
+    thread_id_(std::this_thread::get_id()) {
   if (t_loop_in_this_thread) {
     LOG_FATAL << "Another EventLoop " << t_loop_in_this_thread << " exists in this thread " << thread_id_;
   } else {
