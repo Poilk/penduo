@@ -16,10 +16,15 @@ class Logger {
 
 //#define LOG_DEBUG
 
+#define LOG_TRACE Logger::Init();LOG(INFO)
+#define LOG_DEBUG Logger::Init();LOG(INFO)
 #define LOG_INFO Logger::Init();LOG(INFO)
 #define LOG_WARNING Logger::Init();LOG(WARNING)
 #define LOG_ERROR Logger::Init();LOG(ERROR)
 #define LOG_FATAL Logger::Init();LOG(FATAL)
+
+#define LOG_SYS_ERROR Logger::Init();LOG(ERROR)
+#define LOG_SYS_FATAL Logger::Init();LOG(FATAL)
 
 } // penduo
 
