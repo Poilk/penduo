@@ -10,4 +10,7 @@ target_include_directories(penduo
         PUBLIC net
         )
 
+target_link_libraries(penduo logging)
+
 add_subdirectory(net/tests)
+add_subdirectory(base/logging)
