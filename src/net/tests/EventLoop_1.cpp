@@ -6,6 +6,7 @@
 #include "EventLoop.h"
 #include <thread>
 #include <iostream>
+#include <cassert>
 
 using namespace penduo;
 
