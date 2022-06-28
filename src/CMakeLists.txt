@@ -12,8 +12,7 @@ add_library(penduo STATIC
 
 target_include_directories(penduo
         PRIVATE ${Boost_INCLUDE_DIRS}
-        PUBLIC base
-        PUBLIC net
+        PUBLIC .
         )
 
 target_link_libraries(penduo logging)

@@ -6,7 +6,7 @@
 #define PENDUO_SRC_KERNEL_EVENTLOOP_H_
 
 #include <thread>
-#include "noncopyable.h"
+#include "base/noncopyable.h"
 
 namespace penduo{
 
