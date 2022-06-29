@@ -8,6 +8,7 @@ namespace penduo {
 
 Timestamp::Timestamp() :
     time_point_(TsDuration::zero()) {
+  //todo static check TsClock steady
 }
 
 Timestamp::Timestamp(TsTimePoint ts_time_point) :
@@ -16,6 +17,26 @@ Timestamp::Timestamp(TsTimePoint ts_time_point) :
 
 bool Timestamp::operator<(const Timestamp &rhs) const {
   return time_point_ < rhs.time_point_;
+}
+
+bool Timestamp::operator<=(const Timestamp &rhs) const {
+  return time_point_ <= rhs.time_point_;
+}
+
+bool Timestamp::operator>(const Timestamp &rhs) const {
+  return time_point_ > rhs.time_point_;
+}
+
+bool Timestamp::operator>=(const Timestamp &rhs) const {
+  return time_point_ >= rhs.time_point_;
+}
+
+bool Timestamp::operator==(const Timestamp &rhs) const {
+  return time_point_ == rhs.time_point_;
+}
+
+bool Timestamp::operator!=(const Timestamp &rhs) const {
+  return time_point_ != rhs.time_point_;
 }
 
 Timestamp Timestamp::now() {

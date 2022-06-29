@@ -24,6 +24,11 @@ class Timestamp : copyable {
   Timestamp();
   explicit Timestamp(TsTimePoint ts_time_point);
   bool operator<(const Timestamp &rhs) const;
+  bool operator<=(const Timestamp &rhs) const;
+  bool operator>(const Timestamp &rhs) const;
+  bool operator>=(const Timestamp &rhs) const;
+  bool operator==(const Timestamp &rhs) const;
+  bool operator!=(const Timestamp &rhs) const;
 
   template<class T>
   static int64_t differ(Timestamp st, Timestamp ed);
