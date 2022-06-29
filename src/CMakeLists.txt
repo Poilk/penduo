@@ -18,4 +18,5 @@ target_include_directories(penduo
 target_link_libraries(penduo logging)
 
 add_subdirectory(net/tests)
+add_subdirectory(base/tests)
 add_subdirectory(base/logging)
