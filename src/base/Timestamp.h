@@ -17,8 +17,9 @@ class Timestamp : copyable {
   typedef TsClock::duration TsDuration;
   typedef TsClock::time_point TsTimePoint;
 
-  typedef std::chrono::seconds TsS;
-  typedef std::chrono::milliseconds TsMS;
+  typedef std::chrono::seconds TsSeconds;
+  typedef std::chrono::milliseconds TsMilliseconds;
+  typedef std::chrono::microseconds TsMicroseconds;
 
   Timestamp();
   explicit Timestamp(TsTimePoint ts_time_point);
