@@ -8,7 +8,9 @@
 #include <thread>
 #include <vector>
 #include <atomic>
+#include <functional>
 
+#include "base/Mutex.h"
 #include "base/noncopyable.h"
 
 namespace penduo{
@@ -18,6 +20,7 @@ class Poller;
 
 class EventLoop : noncopyable {
  public:
+  typedef std::function<void()> Functor;
   EventLoop();
   ~EventLoop();
 
@@ -38,10 +41,14 @@ class EventLoop : noncopyable {
     return thread_id_ == std::this_thread::get_id();
   }
 
+  void run_in_loop(Functor cb);
+
   void quit();
 
  private:
   void abort_not_in_loop_thread();
+  void queue_in_loop(Functor cb);
+  void do_pending_functors();
 
   typedef std::vector<Channel*> ChannelList;
 
@@ -50,6 +57,9 @@ class EventLoop : noncopyable {
   std::atomic<bool> quit_;
   const std::thread::id thread_id_;
   ChannelList  active_channels_;
+
+  mutable Mutex mutex_;
+  std::vector<Functor> pending_functors_;
 };
 
 } //namespace penduo

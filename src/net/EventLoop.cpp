@@ -55,10 +55,43 @@ void EventLoop::loop() {
     for (auto channel : active_channels_) {
       channel->handle_event();
     }
+    do_pending_functors();
   }
   LOG_TRACE << "EventLoop " << this << " tid " << thread_id_ << " stop looping";
 
   looping_ = false;
+}
+
+void EventLoop::run_in_loop(Functor cb) {
+  if(is_in_loop_thread()){
+    LOG_TRACE << "run_in_loop, not in EventLoop thread, directly run it.";
+    cb();
+  } else{
+    LOG_TRACE << "run_in_loop, not in EventLoop thread, queue functor in pending queue.";
+    queue_in_loop(std::move(cb));
+  }
+}
+
+void EventLoop::queue_in_loop(Functor cb) {
+  {
+    LockGuard lock_guard(mutex_);
+    pending_functors_.push_back(std::move(cb));
+  }
+
+  //todo wakeup
+}
+
+void EventLoop::do_pending_functors() {
+  assert_in_loop_thread();
+  //todo flag calling_pending_functors_?
+  std::vector<Functor> functors;
+  {
+    LockGuard lock_guard(mutex_);
+    std::swap(functors, pending_functors_);
+  }
+  for( const Functor &func : functors){
+    func();
+  }
 }
 
 void EventLoop::quit() {

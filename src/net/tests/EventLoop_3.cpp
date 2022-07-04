@@ -14,6 +14,11 @@ penduo::EventLoop *g_loop;
 int timerfd;
 using namespace penduo;
 
+void func_in_loop(){
+  LOG_INFO << "func_in_loop!" << std::endl;
+  g_loop->assert_in_loop_thread();
+}
+
 void timeout(){
   LOG_INFO << "Timeout !!!" << std::endl;
   auto t1 = std::chrono::system_clock::now();
@@ -25,6 +30,7 @@ void timeout(){
   auto t = (t2 - t1).count();
 
   read(timerfd, nullptr, 8);
+  g_loop->run_in_loop(func_in_loop);
   //g_loop->quit();
 }
 
@@ -41,6 +47,8 @@ int main(int argc, char *argv[]){
   how_long.it_value.tv_sec = 2;
   how_long.it_interval.tv_sec = 2;
   ::timerfd_settime(timerfd, 0, &how_long, nullptr);
+
+  g_loop->run_in_loop(func_in_loop);
 
   loop.loop();
 
