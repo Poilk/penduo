@@ -6,6 +6,7 @@
 #define PENDUO_SRC_BASE_TIMESTAMP_H_
 
 #include <chrono>
+#include <string>
 
 #include "base/copyable.h"
 
@@ -23,12 +24,17 @@ class Timestamp : copyable {
 
   Timestamp();
   explicit Timestamp(TsTimePoint ts_time_point);
+
   bool operator<(const Timestamp &rhs) const;
   bool operator<=(const Timestamp &rhs) const;
   bool operator>(const Timestamp &rhs) const;
   bool operator>=(const Timestamp &rhs) const;
   bool operator==(const Timestamp &rhs) const;
   bool operator!=(const Timestamp &rhs) const;
+
+  std::string to_string() const {
+    return std::to_string(time_point_.time_since_epoch().count());
+  }
 
   template<class T>
   static int64_t differ(Timestamp st, Timestamp ed);
@@ -40,6 +46,8 @@ class Timestamp : copyable {
 
   static Timestamp now();
   static Timestamp invalid();
+
+  static const int MicroSecondsPerSecond = 1000 * 1000;
  private:
 
   TsTimePoint time_point_;

@@ -9,6 +9,7 @@
 #include "net/EventLoop.h"
 #include "net/Channel.h"
 #include "net/Poller.h"
+#include "net/TimerQueue.h"
 #include "base/logging/Logger.h"
 
 namespace penduo {
@@ -21,7 +22,8 @@ EventLoop::EventLoop() :
     poller_(new Poller(this)),
     looping_(false),
     quit_(false),
-    thread_id_(std::this_thread::get_id()) {
+    thread_id_(std::this_thread::get_id()),
+    timer_queue_(new TimerQueue(this)){
   if (t_loop_in_this_thread) {
     LOG_FATAL << "Another EventLoop " << t_loop_in_this_thread << " exists in this thread " << thread_id_;
   } else {
@@ -64,7 +66,7 @@ void EventLoop::loop() {
 
 void EventLoop::run_in_loop(Functor cb) {
   if(is_in_loop_thread()){
-    LOG_TRACE << "run_in_loop, not in EventLoop thread, directly run it.";
+    LOG_TRACE << "run_in_loop, in EventLoop thread, directly run it.";
     cb();
   } else{
     LOG_TRACE << "run_in_loop, not in EventLoop thread, queue functor in pending queue.";
@@ -79,6 +81,15 @@ void EventLoop::queue_in_loop(Functor cb) {
   }
 
   //todo wakeup
+}
+
+TimerHandle EventLoop::run_at(Timestamp timestamp, TimerCallback cb) {
+  return timer_queue_->add_timer(std::move(cb), timestamp);
+}
+
+TimerHandle EventLoop::run_after(int64_t delay_ms, TimerCallback cb) {
+  Timestamp when = Timestamp::add<Timestamp::TsMilliseconds>(Timestamp::now(), delay_ms);
+  return timer_queue_->add_timer(std::move(cb), when);
 }
 
 void EventLoop::do_pending_functors() {

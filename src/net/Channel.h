@@ -38,7 +38,7 @@ class Channel : noncopyable{
 
   // for poller
   //todo encapsulation
-  int get_pollfds_index(){return pollfds_index_;}
+  int get_pollfds_index() const{return pollfds_index_;}
   void set_pollfds_index(int idx){pollfds_index_ = idx;}
 
   EventLoop *owner_loop(){return loop_;}

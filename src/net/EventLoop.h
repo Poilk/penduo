@@ -12,11 +12,15 @@
 
 #include "base/Mutex.h"
 #include "base/noncopyable.h"
+#include "base/Timestamp.h"
+#include "net/TimerHandle.h"
+#include "net/Callbacks.h"
 
 namespace penduo{
 
 class Channel;
 class Poller;
+class TimerQueue;
 
 class EventLoop : noncopyable {
  public:
@@ -43,6 +47,11 @@ class EventLoop : noncopyable {
 
   void run_in_loop(Functor cb);
 
+
+  TimerHandle run_at(Timestamp timestamp, TimerCallback cb);
+  TimerHandle run_after(int64_t delay_ms, TimerCallback cb);
+  //TimerHandle run_every(int64_t interval_ms, TimerCallback cb);
+
   void quit();
 
  private:
@@ -56,6 +65,7 @@ class EventLoop : noncopyable {
   std::atomic<bool> looping_;
   std::atomic<bool> quit_;
   const std::thread::id thread_id_;
+  std::unique_ptr<TimerQueue> timer_queue_;
   ChannelList  active_channels_;
 
   mutable Mutex mutex_;
