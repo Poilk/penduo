@@ -18,6 +18,7 @@
 namespace penduo {
 
 class EventLoop;
+class Timerfd;
 
 class TimerQueue : noncopyable{
  public:
@@ -41,7 +42,7 @@ class TimerQueue : noncopyable{
   void reset();
 
   EventLoop *loop_;
-  const int timerfd_;
+  std::unique_ptr<Timerfd> timerfd_;
   Channel timerfd_channel_;
   TimerList timer_list_;
 };

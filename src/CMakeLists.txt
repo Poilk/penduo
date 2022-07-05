@@ -8,7 +8,16 @@ cmake_print_variables(penduo_base_srcs)
 add_library(penduo STATIC
         ${penduo_net_srcs}
         ${penduo_base_srcs}
+        base/timerfd/Timerfd.cpp
+        base/timerfd/TimerfdCreator.cpp
+        base/timerfd/$<IF:$<BOOL:PENDUO_USE_NAIVE_TIMERFD>,TimerfdNaive.cpp,TimerfdThreadSimulation.cpp>
         )
+
+if(PENDUO_USE_NAIVE_TIMERFD)
+    add_definitions(
+            -DPENDUO_USE_NAIVE_TIMERFD
+    )
+endif()
 
 target_include_directories(penduo
         PRIVATE ${Boost_INCLUDE_DIRS}
