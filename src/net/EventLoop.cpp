@@ -33,6 +33,7 @@ EventLoop::EventLoop() :
     t_loop_in_this_thread = this;
   }
   int ret = ::pipe(wakeup_pipe_);
+  assert(ret == 0);
   wakeup_channel_ = std::unique_ptr<Channel>(new Channel(this, wakeup_pipe_[0]));
   wakeup_channel_->set_read_callback(std::bind(&EventLoop::wakeupfd_handle_read, this));
 };
