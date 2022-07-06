@@ -6,12 +6,16 @@
 #if PENDUO_USE_NAIVE_TIMERFD
 #include "TimerfdNaive.h"
 #else
-#include "TimerfdNaive.h"
+#include "TimerfdThreadSimulation.h"
 #endif
 
 namespace penduo {
 
 Timerfd *TimerfdCreator::new_default() {
+#if PENDUO_USE_NAIVE_TIMERFD
   return new TimerfdNaive{};
+#else
+  return new TimerfdThreadSimulation{};
+#endif
 }
 } // penduo

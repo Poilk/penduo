@@ -10,9 +10,8 @@ add_library(penduo STATIC
         ${penduo_base_srcs}
         base/timerfd/Timerfd.cpp
         base/timerfd/TimerfdCreator.cpp
-        base/timerfd/$<IF:$<BOOL:PENDUO_USE_NAIVE_TIMERFD>,TimerfdNaive.cpp,TimerfdThreadSimulation.cpp>
+        base/timerfd/$<IF:$<BOOL:${PENDUO_USE_NAIVE_TIMERFD}>,TimerfdNaive.cpp,TimerfdThreadSimulation.cpp>
         )
-
 if(PENDUO_USE_NAIVE_TIMERFD)
     add_definitions(
             -DPENDUO_USE_NAIVE_TIMERFD

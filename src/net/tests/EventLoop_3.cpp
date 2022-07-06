@@ -2,16 +2,16 @@
 // Created by poilk on 2022/6/28.
 //
 
-#include <sys/timerfd.h>
 #include <chrono>
 #include <iostream>
 
+#include "base/timerfd/TimerfdCreator.h"
 #include "net/EventLoop.h"
 #include "net/Channel.h"
 #include "base/logging/Logger.h"
 
 penduo::EventLoop *g_loop;
-int timerfd;
+penduo::Timerfd *timerfd;
 using namespace penduo;
 
 void func_in_loop(){
@@ -29,7 +29,9 @@ void timeout(){
   std::cout << (t2 - t1).count() << ' ' << (t4 - t3).count() << std::endl;
   auto t = (t2 - t1).count();
 
-  read(timerfd, nullptr, 8);
+  timerfd->read();
+  auto expiration = Timestamp::add<Timestamp::TsMilliseconds>(Timestamp::now(), 2000);
+  //timerfd->reset(expiration);
   g_loop->run_in_loop(func_in_loop);
   //g_loop->quit();
 }
@@ -37,18 +39,17 @@ void timeout(){
 int main(int argc, char *argv[]){
   penduo::EventLoop loop;
   g_loop = &loop;
-
-  timerfd = ::timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);
-  penduo::Channel channel(&loop, timerfd);
+  timerfd = penduo::TimerfdCreator::new_default();
+  penduo::Channel channel(&loop, timerfd->get_fd());
   channel.set_read_callback(timeout);
   channel.enable_reading();
 
-  struct itimerspec how_long{};
-  how_long.it_value.tv_sec = 2;
-  how_long.it_interval.tv_sec = 2;
-  ::timerfd_settime(timerfd, 0, &how_long, nullptr);
+  int64_t delay_ms = 2000;
+  LOG_INFO << "before reset timerfd, delay_ms: " << delay_ms;
+  auto expiration = Timestamp::add<Timestamp::TsMilliseconds>(Timestamp::now(), delay_ms);
+  timerfd->reset(expiration);
 
-  g_loop->run_in_loop(func_in_loop);
+  //g_loop->run_in_loop(func_in_loop);
 
   loop.loop();
 
