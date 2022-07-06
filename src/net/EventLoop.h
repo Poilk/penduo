@@ -46,6 +46,7 @@ class EventLoop : noncopyable {
   }
 
   void run_in_loop(Functor cb);
+  void queue_in_loop(Functor cb);
 
 
   TimerHandle run_at(Timestamp timestamp, TimerCallback cb);
@@ -56,8 +57,9 @@ class EventLoop : noncopyable {
 
  private:
   void abort_not_in_loop_thread();
-  void queue_in_loop(Functor cb);
   void do_pending_functors();
+  void wakeup();
+  void wakeupfd_handle_read();
 
   typedef std::vector<Channel*> ChannelList;
 
@@ -66,9 +68,13 @@ class EventLoop : noncopyable {
   std::atomic<bool> quit_;
   const std::thread::id thread_id_;
   std::unique_ptr<TimerQueue> timer_queue_;
+  int wakeup_pipe_[2]{};
+  std::unique_ptr<Channel> wakeup_channel_;
+
   ChannelList  active_channels_;
 
   mutable Mutex mutex_;
+  std::atomic<bool> calling_pending_functors_{};
   std::vector<Functor> pending_functors_;
 };
 

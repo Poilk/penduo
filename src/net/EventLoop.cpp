@@ -23,12 +23,18 @@ EventLoop::EventLoop() :
     looping_(false),
     quit_(false),
     thread_id_(std::this_thread::get_id()),
-    timer_queue_(new TimerQueue(this)){
+    timer_queue_(new TimerQueue(this)),
+    wakeup_pipe_(),
+    wakeup_channel_(),
+    calling_pending_functors_(false){
   if (t_loop_in_this_thread) {
     LOG_FATAL << "Another EventLoop " << t_loop_in_this_thread << " exists in this thread " << thread_id_;
   } else {
     t_loop_in_this_thread = this;
   }
+  int ret = ::pipe(wakeup_pipe_);
+  wakeup_channel_ = std::unique_ptr<Channel>(new Channel(this, wakeup_pipe_[0]));
+  wakeup_channel_->set_read_callback(std::bind(&EventLoop::wakeupfd_handle_read, this));
 };
 
 EventLoop::~EventLoop() {
@@ -80,7 +86,9 @@ void EventLoop::queue_in_loop(Functor cb) {
     pending_functors_.push_back(std::move(cb));
   }
 
-  //todo wakeup
+  if(!is_in_loop_thread() || calling_pending_functors_){
+    wakeup();
+  }
 }
 
 TimerHandle EventLoop::run_at(Timestamp timestamp, TimerCallback cb) {
@@ -94,7 +102,7 @@ TimerHandle EventLoop::run_after(int64_t delay_ms, TimerCallback cb) {
 
 void EventLoop::do_pending_functors() {
   assert_in_loop_thread();
-  //todo flag calling_pending_functors_?
+  calling_pending_functors_ = true;
   std::vector<Functor> functors;
   {
     LockGuard lock_guard(mutex_);
@@ -103,13 +111,24 @@ void EventLoop::do_pending_functors() {
   for( const Functor &func : functors){
     func();
   }
+  calling_pending_functors_ = false;
+}
+
+void EventLoop::wakeup() {
+  int64_t one{};
+  ::write(wakeup_pipe_[1], &one, sizeof one);
+}
+
+void EventLoop::wakeupfd_handle_read() {
+  int64_t one{};
+  ::read(wakeup_pipe_[0], &one, sizeof one);
 }
 
 void EventLoop::quit() {
   quit_ = true;
 
   if (!is_in_loop_thread()) {
-    //todo wakeup from another thread
+    wakeup();
   }
 }
 
