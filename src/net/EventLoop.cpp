@@ -36,6 +36,7 @@ EventLoop::EventLoop() :
   assert(ret == 0);
   wakeup_channel_ = std::unique_ptr<Channel>(new Channel(this, wakeup_pipe_[0]));
   wakeup_channel_->set_read_callback(std::bind(&EventLoop::wakeupfd_handle_read, this));
+  wakeup_channel_->enable_reading();
 };
 
 EventLoop::~EventLoop() {
