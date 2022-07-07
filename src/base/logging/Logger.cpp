@@ -14,7 +14,11 @@ void Logger::Init() {
   auto init_fuc = [](){
     el::Configurations c;
     c.setToDefault();
-    c.parseFromText("*GLOBAL:\n FORMAT = [%datetime][%level] %fbase:%line %msg");
+    c.parseFromText("*GLOBAL:\n"
+                    " FORMAT                = [%datetime][%level] %fbase:%line %msg\n"
+                    " TO_FILE               = false\n"
+                    " TO_STANDARD_OUTPUT    = true\n"
+                    " SUBSECOND_PRECISION   = 6");
     el::Loggers::reconfigureAllLoggers(c);
   };
   std::call_once(init_flag, init_fuc);
