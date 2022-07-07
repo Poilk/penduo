@@ -5,6 +5,7 @@
 #include <cassert>
 #include <thread>
 #include <sys/poll.h>
+#include <unistd.h>
 
 #include "net/EventLoop.h"
 #include "net/Channel.h"

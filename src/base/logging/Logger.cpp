@@ -5,15 +5,17 @@
 #include "Logger.h"
 #include <mutex>
 
+INITIALIZE_EASYLOGGINGPP;
+
 namespace penduo {
 
 void Logger::Init() {
   static std::once_flag init_flag;
   auto init_fuc = [](){
-    google::InitGoogleLogging("penduo");
-    FLAGS_logtostderr = true;
-    FLAGS_stderrthreshold = google::GLOG_INFO;
-    LOG(INFO) << "in Logger::Init init_func";
+    el::Configurations c;
+    c.setToDefault();
+    c.parseFromText("*GLOBAL:\n FORMAT = [%datetime][%level] %fbase:%line %msg");
+    el::Loggers::reconfigureAllLoggers(c);
   };
   std::call_once(init_flag, init_fuc);
 }

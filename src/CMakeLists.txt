@@ -1,4 +1,4 @@
-find_package(Boost REQUIRED)
+#find_package(Boost REQUIRED)
 
 file(GLOB penduo_net_srcs RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} net/*.cpp)
 file(GLOB penduo_base_srcs RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} base/*.cpp)

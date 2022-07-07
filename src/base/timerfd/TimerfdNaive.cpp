@@ -3,6 +3,7 @@
 //
 
 #include <sys/timerfd.h>
+#include <unistd.h>
 
 #include "TimerfdNaive.h"
 #include "base/logging/Logger.h"
