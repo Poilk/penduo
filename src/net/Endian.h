@@ -1,0 +1,71 @@
+//
+// Created by poilk on 2022/7/7.
+//
+
+#ifndef PENDUO_NET_ENDIAN_H
+#define PENDUO_NET_ENDIAN_H
+
+#include <cstdint>
+
+#ifdef __APPLE__
+#include <libkern/OSByteOrder.h>
+
+#define htobe16(x) OSSwapHostToBigInt16(x)
+#define htole16(x) OSSwapHostToLittleInt16(x)
+#define be16toh(x) OSSwapBigToHostInt16(x)
+#define le16toh(x) OSSwapLittleToHostInt16(x)
+
+#define htobe32(x) OSSwapHostToBigInt32(x)
+#define htole32(x) OSSwapHostToLittleInt32(x)
+#define be32toh(x) OSSwapBigToHostInt32(x)
+#define le32toh(x) OSSwapLittleToHostInt32(x)
+
+#define htobe64(x) OSSwapHostToBigInt64(x)
+#define htole64(x) OSSwapHostToLittleInt64(x)
+#define be64toh(x) OSSwapBigToHostInt64(x)
+#define le64toh(x) OSSwapLittleToHostInt64(x)
+
+#else
+
+#include <endian.h>
+
+#endif
+
+namespace penduo {
+namespace sockets {
+
+// the inline assembler code makes type blur,
+// so we disable warnings for a while.
+//#pragma GCC diagnostic push
+//#pragma GCC diagnostic ignored "-Wconversion"
+//#pragma GCC diagnostic ignored "-Wold-style-cast"
+inline uint64_t host_to_network64(uint64_t host64) {
+  return htobe64(host64);
+}
+
+inline uint32_t host_to_network32(uint32_t host32) {
+  return htobe32(host32);
+}
+
+inline uint16_t host_to_network16(uint16_t host16) {
+  return htobe16(host16);
+}
+
+inline uint64_t network_to_host64(uint64_t net64) {
+  return be64toh(net64);
+}
+
+inline uint32_t network_to_host32(uint32_t net32) {
+  return be32toh(net32);
+}
+
+inline uint16_t network_to_host16(uint16_t net16) {
+  return be16toh(net16);
+}
+
+//#pragma GCC diagnostic pop
+
+}  // namespace sockets
+}  // namespace penduo
+
+#endif  // PENDUO_NET_ENDIAN_H
