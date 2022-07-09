@@ -28,15 +28,27 @@ InetAddress::InetAddress(uint16_t port, bool loopback_only, bool ipv6) {
   }
 }
 
+InetAddress::InetAddress(sockaddr_in6 &addr6) : addr6_(addr6){
+}
+
+InetAddress::InetAddress(sockaddr_in &addr) : addr_(addr){
+}
+
+InetAddress::InetAddress(sockaddr_in6 &&addr6) : addr6_(addr6){
+}
+
+InetAddress::InetAddress(sockaddr_in &&addr) : addr_(addr){
+}
+
 sa_family_t InetAddress::family() const {
   return addr_.sin_family;
 }
 
-std::string InetAddress::to_ip() {
+std::string InetAddress::to_ip() const {
   return sockets::to_ip(get_socket_addr());
 }
 
-std::string InetAddress::to_ip_port() {
+std::string InetAddress::to_ip_port() const {
   return sockets::to_ip_port(get_socket_addr());
 }
 

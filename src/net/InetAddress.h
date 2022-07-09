@@ -16,22 +16,27 @@ namespace penduo {
 
 // wrapper of sockaddr_in
 
-class InetAddress : copyable{
+class InetAddress : copyable {
  public:
   explicit InetAddress(uint16_t port = 0, bool loopback_only = false, bool ipv6 = false);
 
+  explicit InetAddress(sockaddr_in6 &addr6);
+  explicit InetAddress(sockaddr_in &addr);
+  explicit InetAddress(sockaddr_in6 &&addr6);
+  explicit InetAddress(sockaddr_in &&addr);
+
   sa_family_t family() const;
 
-  const struct sockaddr * get_socket_addr() const {return sockets::sockaddr_cast(&addr_);}
+  const struct sockaddr *get_socket_addr() const { return sockets::sockaddr_cast(&addr_); }
 
-  void set_socket_addr_inet6(sockaddr_in6 &addr){addr6_ = addr;}
+  void set_socket_addr_inet6(sockaddr_in6 &addr) { addr6_ = addr; }
 
-  std::string to_ip();
-  std::string to_ip_port();
+  std::string to_ip() const;
+  std::string to_ip_port() const;
 
  private:
   //distinguish ipv4 ipv6 by sin_family
-  union{
+  union {
     struct sockaddr_in addr_;
     struct sockaddr_in6 addr6_;
   };

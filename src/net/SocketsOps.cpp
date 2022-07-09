@@ -148,12 +148,30 @@ struct sockaddr *sockets::sockaddr_cast(struct sockaddr_in6 *addr) {
   return reinterpret_cast<struct sockaddr *>(addr);
 }
 
+const struct sockaddr_in *sockets::sockaddr_in_cast(const struct sockaddr *addr) {
+  return reinterpret_cast<const struct sockaddr_in *>(addr);
+}
+
 const struct sockaddr_in6 *sockets::sockaddr_in6_cast(const struct sockaddr *addr) {
   return reinterpret_cast<const struct sockaddr_in6 *>(addr);
 }
 
-const struct sockaddr_in *sockets::sockaddr_in_cast(const struct sockaddr *addr) {
-  return reinterpret_cast<const struct sockaddr_in *>(addr);
+struct sockaddr_in6 sockets::get_local_addr(int socket_fd) {
+  struct sockaddr_in6 local_addr{};
+  auto addr_len = static_cast<socklen_t>(sizeof local_addr);
+  if (::getsockname(socket_fd, sockaddr_cast(&local_addr), &addr_len) < 0){
+    LOG_SYS_ERROR << "sockets::get_local_addr";
+  }
+  return local_addr;
+}
+
+struct sockaddr_in6 sockets::get_peer_addr(int socket_fd) {
+  struct sockaddr_in6 peer_addr{};
+  auto addr_len = static_cast<socklen_t>(sizeof peer_addr);
+  if (::getpeername(socket_fd, sockaddr_cast(&peer_addr), &addr_len) < 0){
+    LOG_SYS_ERROR << "sockets::get_peer_addr";
+  }
+  return peer_addr;
 }
 
 } // penduo
