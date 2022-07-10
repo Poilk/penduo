@@ -14,12 +14,12 @@ penduo::EventLoop *g_loop;
 penduo::Timerfd *timerfd;
 using namespace penduo;
 
-void func_in_loop(){
+void func_in_loop() {
   LOG_INFO << "func_in_loop!" << std::endl;
   g_loop->assert_in_loop_thread();
 }
 
-void timeout(){
+void timeout(Timestamp receive_time) {
   LOG_INFO << "Timeout !!!" << std::endl;
   auto t1 = std::chrono::system_clock::now();
   auto t2 = std::chrono::system_clock::now();
@@ -27,6 +27,8 @@ void timeout(){
   auto t4 = std::chrono::steady_clock::now();
   std::cout << (t2 - t1).count() << ' ' << (t4 - t3).count() << std::endl;
   std::cout << (t2 - t1).count() << ' ' << (t4 - t3).count() << std::endl;
+  std::cout << "poll to timeout differ "
+            << Timestamp::differ<Timestamp::TsMicroseconds>(receive_time, Timestamp::now()) << std::endl;
   auto t = (t2 - t1).count();
 
   timerfd->read();
@@ -36,7 +38,7 @@ void timeout(){
   //g_loop->quit();
 }
 
-int main(int argc, char *argv[]){
+int main(int argc, char *argv[]) {
   penduo::EventLoop loop;
   g_loop = &loop;
   timerfd = penduo::TimerfdCreator::new_default();

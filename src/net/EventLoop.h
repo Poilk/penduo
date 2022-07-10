@@ -59,7 +59,7 @@ class EventLoop : noncopyable {
   void abort_not_in_loop_thread();
   void do_pending_functors();
   void wakeup();
-  void wakeupfd_handle_read();
+  void wakeupfd_handle_read(Timestamp receive_time);
 
   typedef std::vector<Channel*> ChannelList;
 

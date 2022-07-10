@@ -10,6 +10,7 @@
 #include "base/noncopyable.h"
 #include "net/Callbacks.h"
 #include "net/InetAddress.h"
+#include "net/Buffer.h"
 
 namespace penduo {
 
@@ -38,7 +39,7 @@ class TcpConnection : noncopyable,
   enum StateE { Connecting, Connected, DisConnected};
 
   void set_state(StateE state){state_ = state;}
-  void handle_read();
+  void handle_read(Timestamp receive_time);
   void handle_write();
   void handle_close();
   void handle_error();
@@ -53,6 +54,7 @@ class TcpConnection : noncopyable,
   ConnectionCallback connection_callback_;
   CloseCallback close_callback_;
   MessageCallback message_callback_;
+  Buffer input_buffer_;
 };
 
 } // penduo

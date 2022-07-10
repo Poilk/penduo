@@ -30,7 +30,7 @@ class Acceptor : noncopyable{
   void listen();
 
  private:
-  void handle_read();
+  void handle_read(Timestamp receive_time);
 
  private:
 

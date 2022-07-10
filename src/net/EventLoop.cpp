@@ -36,7 +36,7 @@ EventLoop::EventLoop() :
   int ret = ::pipe(wakeup_pipe_);
   assert(ret == 0);
   wakeup_channel_ = std::unique_ptr<Channel>(new Channel(this, wakeup_pipe_[0]));
-  wakeup_channel_->set_read_callback(std::bind(&EventLoop::wakeupfd_handle_read, this));
+  wakeup_channel_->set_read_callback(std::bind(&EventLoop::wakeupfd_handle_read, this, std::placeholders::_1));
   wakeup_channel_->enable_reading();
 };
 
@@ -63,8 +63,9 @@ void EventLoop::loop() {
   while (!quit_) {
     active_channels_.clear();
     poller_->poll(K_POLLTIME_MS, active_channels_);
+    Timestamp receive_time = Timestamp::now();
     for (auto channel : active_channels_) {
-      channel->handle_event();
+      channel->handle_event(receive_time);
     }
     do_pending_functors();
   }
@@ -122,7 +123,7 @@ void EventLoop::wakeup() {
   ::write(wakeup_pipe_[1], &one, sizeof one);
 }
 
-void EventLoop::wakeupfd_handle_read() {
+void EventLoop::wakeupfd_handle_read(Timestamp receive_time) {
   int64_t one{};
   ::read(wakeup_pipe_[0], &one, sizeof one);
 }

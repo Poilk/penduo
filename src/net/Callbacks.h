@@ -12,6 +12,7 @@
 namespace penduo{
 
 class TcpConnection;
+class Buffer;
 typedef std::shared_ptr<TcpConnection> TcpConnectionPtr;
 
 typedef std::function<void (const TcpConnectionPtr &)> ConnectionCallback;
@@ -19,7 +20,7 @@ typedef std::function<void()> CloseCallback;
 
 typedef std::function<void()> TimerCallback;
 
-typedef std::function<void (const TcpConnectionPtr &, char *, size_t)> MessageCallback;
+typedef std::function<void (const TcpConnectionPtr &, Buffer *, Timestamp)> MessageCallback;
 
 } // penduo
 

@@ -17,7 +17,7 @@ TimerQueue::TimerQueue(EventLoop *loop) :
     loop_(loop),
     timerfd_(TimerfdCreator::new_default()),
     timerfd_channel_(loop_, timerfd_->get_fd()) {
-  timerfd_channel_.set_read_callback(std::bind(&TimerQueue::handle_read, this));
+  timerfd_channel_.set_read_callback(std::bind(&TimerQueue::handle_read, this, std::placeholders::_1));
   timerfd_channel_.enable_reading();
 }
 
@@ -68,7 +68,7 @@ std::vector<Timer::SharedPtr> TimerQueue::get_expired(Timestamp now) {
   return expired;
 }
 
-void TimerQueue::handle_read() {
+void TimerQueue::handle_read(Timestamp receive_time) {
   loop_->assert_in_loop_thread();
   Timestamp now = Timestamp::now();
 

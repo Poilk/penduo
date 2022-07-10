@@ -20,10 +20,10 @@ void on_connection(const TcpConnectionPtr &connection) {
   }
 }
 
-void on_message(const TcpConnectionPtr &connection, const char *data, size_t len){
-  LOG_INFO << "on_message(): received " << len << " bytes from connection [" << connection->name()
+void on_message(const TcpConnectionPtr &connection, Buffer *buffer, Timestamp receive_time){
+  LOG_INFO << "on_message(): received " << buffer->readable_bytes() << " bytes from connection [" << connection->name()
   << "]";
-  LOG_INFO << "on_message(): reecived message: " << data;
+  LOG_INFO << "on_message(): reecived message: " << buffer->receive_as_string();
 }
 
 int main(int argc, char *argv[]) {

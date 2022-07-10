@@ -16,7 +16,7 @@ Acceptor::Acceptor(EventLoop *loop, const InetAddress &listen_addr, bool reuse_p
     listening_(false) {
   accept_socket_.set_reuse_addr(reuse_port);
   accept_socket_.bind_address(listen_addr);
-  accept_channel_.set_read_callback(std::bind(&Acceptor::handle_read, this));
+  accept_channel_.set_read_callback(std::bind(&Acceptor::handle_read, this, std::placeholders::_1));
 }
 
 void Acceptor::listen() {
@@ -26,7 +26,7 @@ void Acceptor::listen() {
   accept_channel_.enable_reading();
 }
 
-void Acceptor::handle_read() {
+void Acceptor::handle_read(Timestamp receive_time) {
   loop_->assert_in_loop_thread();
   InetAddress peer_addr{};
   //todo loop until no more;

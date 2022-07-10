@@ -47,7 +47,7 @@ void Channel::update() {
   added_to_loop_ = true;
 }
 
-void Channel::handle_event() {
+void Channel::handle_event(Timestamp receive_time) {
   //todo fix handle with guard ?
   event_handling_ = true;
   if (revents_ & POLLNVAL) {
@@ -69,7 +69,7 @@ void Channel::handle_event() {
   //todo fix POLLRDHUP
   if (revents_ & (POLLIN | POLLPRI /*| POLLRDHUP*/)) {
     if (read_callback_) {
-      read_callback_();
+      read_callback_(receive_time);
     }
   }
 
