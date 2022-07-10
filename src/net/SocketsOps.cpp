@@ -17,7 +17,7 @@ void set_nonblocking_and_close_on_exec(int socket_fd) {
   int flags = ::fcntl(socket_fd, F_GETFL, 0);
   flags += O_NONBLOCK;
   int ret = ::fcntl(socket_fd, F_SETFL, flags);
-  if(ret < 0){
+  if (ret < 0) {
     LOG_SYS_ERROR << "::fcntl errno " << errno;
   }
 
@@ -25,18 +25,18 @@ void set_nonblocking_and_close_on_exec(int socket_fd) {
   flags = ::fcntl(socket_fd, F_GETFD, 0);
   flags |= FD_CLOEXEC;
   ret = ::fcntl(socket_fd, F_SETFD, flags);
-  if(ret < 0){
+  if (ret < 0) {
     LOG_SYS_ERROR << "::fcntl errno " << errno;
   }
 }
 
 void sockets::bind_or_die(int socket_fd, const struct sockaddr *addr) {
   int ret = 0;
-  if(addr->sa_family == AF_INET){
+  if (addr->sa_family == AF_INET) {
     ret = ::bind(socket_fd, addr, static_cast<socklen_t>(sizeof(struct sockaddr_in)));
-  } else if(addr->sa_family == AF_INET6){
+  } else if (addr->sa_family == AF_INET6) {
     ret = ::bind(socket_fd, addr, static_cast<socklen_t>(sizeof(struct sockaddr_in6)));
-  } else{
+  } else {
     LOG_FATAL << "sockets::bind unknown sa_family";
   }
   if (ret < 0) {
@@ -115,7 +115,7 @@ std::string sockets::to_ip(const sockaddr *addr) {
     const struct sockaddr_in6 *addr6 = sockaddr_in6_cast(addr);
     ::inet_ntop(AF_INET6, &addr6->sin6_addr, buf, static_cast<socklen_t>(buf_size));
     return buf;
-  } else{
+  } else {
     LOG_FATAL << "unknown sa_family " << addr->sa_family;
     return "unknown sa_family";
   }
@@ -130,9 +130,20 @@ std::string sockets::to_ip_port(const sockaddr *addr) {
     const struct sockaddr_in6 *addr6 = sockaddr_in6_cast(addr);
     uint16_t port = sockets::network_to_host16(addr6->sin6_port);
     return "[" + to_ip(addr) + "]:" + std::to_string(port);
-  } else{
+  } else {
     LOG_FATAL << "unknown sa_family " << addr->sa_family;
     return "unknown sa_family";
+  }
+}
+
+int sockets::get_socket_error(int socket_fd) {
+  int option_val;
+  auto option_len = static_cast<socklen_t>(sizeof option_val);
+
+  if (::getsockopt(socket_fd, SOL_SOCKET, SO_ERROR, &option_val, &option_len) < 0) {
+    return errno;
+  } else {
+    return option_val;
   }
 }
 
@@ -159,7 +170,7 @@ const struct sockaddr_in6 *sockets::sockaddr_in6_cast(const struct sockaddr *add
 struct sockaddr_in6 sockets::get_local_addr(int socket_fd) {
   struct sockaddr_in6 local_addr{};
   auto addr_len = static_cast<socklen_t>(sizeof local_addr);
-  if (::getsockname(socket_fd, sockaddr_cast(&local_addr), &addr_len) < 0){
+  if (::getsockname(socket_fd, sockaddr_cast(&local_addr), &addr_len) < 0) {
     LOG_SYS_ERROR << "sockets::get_local_addr";
   }
   return local_addr;
@@ -168,7 +179,7 @@ struct sockaddr_in6 sockets::get_local_addr(int socket_fd) {
 struct sockaddr_in6 sockets::get_peer_addr(int socket_fd) {
   struct sockaddr_in6 peer_addr{};
   auto addr_len = static_cast<socklen_t>(sizeof peer_addr);
-  if (::getpeername(socket_fd, sockaddr_cast(&peer_addr), &addr_len) < 0){
+  if (::getpeername(socket_fd, sockaddr_cast(&peer_addr), &addr_len) < 0) {
     LOG_SYS_ERROR << "sockets::get_peer_addr";
   }
   return peer_addr;

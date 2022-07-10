@@ -28,6 +28,8 @@ class Logger {
 #define LOG_SYS_ERROR LOG(ERROR) << std::this_thread::get_id() << ' '
 #define LOG_SYS_FATAL LOG(FATAL) << std::this_thread::get_id() << ' '
 
+const char * strerror_tl(int saved_error);
+
 } // penduo
 
 #endif //PENDUO_SRC_BASE_LOGGING_LOGGER_H_

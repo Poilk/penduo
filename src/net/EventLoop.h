@@ -33,7 +33,7 @@ class EventLoop : noncopyable {
   static EventLoop *get_event_loop_of_current_thread();
 
   void update_channel(Channel *channel);
-  void remove_channel(Channel *Channel);
+  void remove_channel(Channel *channel);
 
   void assert_in_loop_thread(){
     if (!is_in_loop_thread()){

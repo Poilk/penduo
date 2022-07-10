@@ -3,6 +3,7 @@
 //
 
 #include "Logger.h"
+#include <string>
 #include <mutex>
 
 INITIALIZE_EASYLOGGINGPP;
@@ -22,6 +23,15 @@ void Logger::Init() {
     el::Loggers::reconfigureAllLoggers(c);
   };
   std::call_once(init_flag, init_fuc);
+}
+
+thread_local char t_errnobuf[512];
+//thread_local char t_time[64];
+//thread_local time_t t_last_second;
+
+const char *strerror_tl(int saved_errno){
+  strerror_r(saved_errno, t_errnobuf, sizeof t_errnobuf);
+  return t_errnobuf;
 }
 
 } // penduo

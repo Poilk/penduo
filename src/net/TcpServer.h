@@ -42,6 +42,8 @@ class TcpServer : noncopyable {
   // Not thread safe, but in loop
   void new_connection(int socket_fd, const InetAddress &peer_addr);
 
+  void remove_connection(const TcpConnectionPtr &connection);
+
   typedef std::map<std::string, TcpConnectionPtr> ConnectionMap;
 
   EventLoop *loop_;
@@ -49,6 +51,7 @@ class TcpServer : noncopyable {
   std::unique_ptr<Acceptor> acceptor_;
   ConnectionCallback connection_callback_;
   MessageCallback message_callback_;
+  CloseCallback close_callback_;
   bool started_;
   int next_connect_id_;
   ConnectionMap connections_;

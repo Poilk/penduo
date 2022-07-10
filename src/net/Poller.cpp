@@ -74,6 +74,27 @@ void Poller::update_channel(Channel *channel) {
   }
 }
 
+void Poller::remove_channel(Channel *channel) {
+  assert_in_loop_thread();
+  assert(channel);
+  LOG_TRACE << "remove_channel fd = " << channel->fd();
+  assert(channels_.count(channel->fd()));
+  assert(channels_.at(channel->fd()) == channel);
+  assert(channel->is_none_event());
+  const int idx = channel->get_pollfds_index();
+  assert(0 <= idx && idx < static_cast<int>(pollfds_.size()));
+  auto &pfd = pollfds_[idx];
+  assert(pfd.fd == ~channel->fd() && pfd.events == channel->events());
+  assert(channels_.erase(channel->fd()) == 1);
+  if(idx != pollfds_.size() - 1){
+    std::swap(pollfds_[idx], pollfds_.back());
+    const int update_fd = pollfds_[idx].fd < 0 ? ~pollfds_[idx].fd : pollfds_[idx].fd;
+    assert(channels_.count(update_fd));
+    channels_.at(update_fd)->set_pollfds_index(idx);
+  }
+  pollfds_.pop_back();
+}
+
 void Poller::assert_in_loop_thread() {
   owner_loop_->assert_in_loop_thread();
 }

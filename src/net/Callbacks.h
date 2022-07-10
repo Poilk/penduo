@@ -15,6 +15,7 @@ class TcpConnection;
 typedef std::shared_ptr<TcpConnection> TcpConnectionPtr;
 
 typedef std::function<void (const TcpConnectionPtr &)> ConnectionCallback;
+typedef std::function<void()> CloseCallback;
 
 typedef std::function<void()> TimerCallback;
 

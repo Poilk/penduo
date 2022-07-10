@@ -141,8 +141,11 @@ void EventLoop::update_channel(Channel *channel) {
   poller_->update_channel(channel);
 }
 
-void EventLoop::remove_channel(Channel *Channel) {
-  //todo impl
+void EventLoop::remove_channel(Channel *channel) {
+  assert(channel->owner_loop() == this);
+  assert_in_loop_thread();
+  //todo event_handling
+  poller_->remove_channel(channel);
 }
 
 } //namespace penduo

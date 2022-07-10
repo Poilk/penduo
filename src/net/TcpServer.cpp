@@ -2,6 +2,7 @@
 // Created by poilk on 2022/7/8.
 //
 
+#include <cassert>
 #include "TcpServer.h"
 #include "base/logging/Logger.h"
 #include "net/EventLoop.h"
@@ -45,7 +46,15 @@ void TcpServer::new_connection(int socket_fd, const InetAddress &peer_addr) {
   connections_[connection_name] = connection;
   connection->set_connection_callback(connection_callback_);
   connection->set_message_callback(message_callback_);
+  connection->set_close_callback(std::bind(&TcpServer::remove_connection, this, connection));
   connection->connect_establish();
+}
+
+void TcpServer::remove_connection(const TcpConnectionPtr &connection) {
+  loop_->assert_in_loop_thread();
+  LOG_INFO << "TcpServer::remove_connection [" << name_ << "] - connection " << connection->name();
+  assert(connections_.erase(connection->name()) == 1);
+  loop_->queue_in_loop(std::bind(&TcpConnection::connect_destoryed, connection));
 }
 
 } // penduo

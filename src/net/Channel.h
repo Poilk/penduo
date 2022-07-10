@@ -23,11 +23,13 @@ class Channel : noncopyable{
   typedef std::function<void()> EventCallback;
 
   Channel(EventLoop *loop, int fd);
+  ~Channel();
 
   void handle_event();
   void set_read_callback(const EventCallback &cb){read_callback_ = cb;}
   void set_write_callback(const EventCallback &cb){write_callback_ = cb;}
   void set_error_callback(const EventCallback &cb){error_callback_ = cb;}
+  void set_close_callback(const EventCallback &cb){close_callback_ = cb;}
 
   int fd() const { return fd_;}
   int events() const {return events_;}
@@ -35,6 +37,9 @@ class Channel : noncopyable{
   bool is_none_event() const {return events_ == K_NONE_EVENT;}
 
   void enable_reading() {events_ |= K_READ_EVENT; update();}
+  void disable_all() {events_ = K_NONE_EVENT; update();}
+
+  void remove();
 
   // for poller
   //todo encapsulation
@@ -59,6 +64,9 @@ class Channel : noncopyable{
   EventCallback read_callback_;
   EventCallback write_callback_;
   EventCallback error_callback_;
+  EventCallback close_callback_;
+  bool event_handling_;
+  bool added_to_loop_;
 };
 
 } // penduo

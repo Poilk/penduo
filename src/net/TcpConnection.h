@@ -26,14 +26,22 @@ class TcpConnection : noncopyable,
   InetAddress peer_address() const {return peer_addr_;}
   InetAddress local_address() const {return local_addr_;}
   void set_connection_callback(ConnectionCallback cb) {connection_callback_ = std::move(cb);}
+  void set_close_callback(CloseCallback cb) {close_callback_ = std::move(cb);}
   void set_message_callback(MessageCallback cb) {message_callback_ = std::move(cb);}
 
-  void connect_establish();
+
+  // called when TcpServer accepts a new connection
+  void connect_establish();   //should be called only once
+  // called when TcpServer has remove me from its map
+  void connect_destoryed();   //should be called only once
  private:
-  enum StateE { Connecting, Connected };
+  enum StateE { Connecting, Connected, DisConnected};
 
   void set_state(StateE state){state_ = state;}
   void handle_read();
+  void handle_write();
+  void handle_close();
+  void handle_error();
 
   EventLoop *loop_;
   const std::string name_;
@@ -43,6 +51,7 @@ class TcpConnection : noncopyable,
   InetAddress local_addr_;
   InetAddress peer_addr_;
   ConnectionCallback connection_callback_;
+  CloseCallback close_callback_;
   MessageCallback message_callback_;
 };
 

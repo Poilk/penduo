@@ -37,6 +37,8 @@ class Poller : noncopyable{
   // Must be called in the loop thread.
   void update_channel(Channel *channel);
 
+  void remove_channel(Channel *channel);
+
   void assert_in_loop_thread();
 
  private:

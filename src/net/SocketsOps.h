@@ -21,6 +21,8 @@ void close(int socket_fd);
 std::string to_ip(const sockaddr *addr);
 std::string to_ip_port(const sockaddr *addr);
 
+int get_socket_error(int socket_fd);
+
 const struct sockaddr *sockaddr_cast(const struct sockaddr_in * addr);
 const struct sockaddr *sockaddr_cast(const struct sockaddr_in6 * addr);
 struct sockaddr *sockaddr_cast(struct sockaddr_in6 * addr);
